@@ -32,8 +32,11 @@ function getCurrentFunctionName() {
  *   getFunctionBody(hiHello) => "function hiHello() { console.log('hello world'); }"
  *
  */
-function getFunctionBody(/* func */) {
-  throw new Error('Not implemented');
+function getFunctionBody(func) {
+  if (typeof func === 'function') {
+    return func.toString();
+  }
+  return '';
 }
 
 /**
@@ -165,10 +168,12 @@ function retry(func, attempts) {
  *
  */
 function logger(func, logFunc) {
-  return (arg) => {
-    logFunc(func, 'starts');
-    logFunc(func, 'ends');
-    return func(arg);
+  return function log(...args) {
+    const argsStr = args.map((arg) => JSON.stringify(arg)).join(',');
+    logFunc(`${func.name}(${argsStr}) starts`);
+    const result = func.apply(this, args);
+    logFunc(`${func.name}(${argsStr}) ends`);
+    return result;
   };
 }
 
